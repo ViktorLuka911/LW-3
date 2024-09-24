@@ -236,10 +236,30 @@ public class Main {
         while (droidA.health > 0 && droidB.health > 0) {
             System.out.println("\t" + BLUE + droidA.inSingleFightInfo() + RESET + "                  " + RED + droidB.inSingleFightInfo() + RESET);
             if (activeDroid) {
-                droidA.action(droidA);
+                if (droidA.ability.active) {
+                    droidA.ability.resetCooldown();
+                    if (droidA.ability.activeCount == 0) {
+                        droidA.ability.reset();
+                    }
+                } else if (droidA.ability.reloadCount == droidA.ability.reloadTiming) {
+                    droidA.action(droidA);
+                } else {
+                    System.out.println("\n\tЗдібність " + PURPLE + droidA.ability.name + RESET + " не готова до використання для дроїда " + YELLOW + droidA.name + RESET + ".");
+                    droidA.ability.updateCooldown(); // Оновлюємо час охолодження
+                }
                 droidA.attack(droidB);
             } else {
-                droidB.action(droidB);
+                if (droidB.ability.active) {
+                    droidB.ability.resetCooldown();
+                    if (droidB.ability.activeCount == 0) {
+                        droidB.ability.reset();
+                    }
+                } else if (droidB.ability.reloadCount == droidB.ability.reloadTiming) {
+                    droidB.action(droidB);
+                } else {
+                    System.out.println("\n\tЗдібність " + PURPLE + droidB.ability.name + RESET + " не готова до використання для дроїда " + YELLOW + droidB.name + RESET + ".");
+                    droidB.ability.updateCooldown(); // Оновлюємо час охолодження
+                }
                 droidB.attack(droidA);
             }
             activeDroid = !activeDroid;

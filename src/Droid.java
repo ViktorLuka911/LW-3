@@ -51,29 +51,19 @@ public class Droid {
     public void action(Droid target) {
         Scanner scanner = new Scanner(System.in);
 
-        if (ability.active) {
-            ability.resetCooldown();
-            if (ability.activeCount == 0) {
-                ability.reset();
-            }
-        } else if (ability.reloadCount == ability.reloadTiming) {
-            System.out.println("\n\tВи хочете використати здібність " + PURPLE + ability.name + RESET + " для дроїда " + YELLOW + name + RESET + " ?");
-            System.out.println("\n\t1 - Так");
-            System.out.println("\t2 - Ні");
+        System.out.println("\n\tВи хочете використати здібність " + PURPLE + ability.name + RESET + " для дроїда " + YELLOW + name + RESET + " ?");
+        System.out.println("\n\t1 - Так");
+        System.out.println("\t2 - Ні");
 
-            int choice;
-            do {
-                System.out.print("\n\tВаш вибір: ");
-                choice = scanner.nextInt();
-            } while (choice < 1 || choice > 2);
+        int choice;
+        do {
+            System.out.print("\n\tВаш вибір: ");
+            choice = scanner.nextInt();
+        } while (choice < 1 || choice > 2);
 
-            if (choice == 1) {
-                ability.set(); // Активуємо здібність
-                ability.useAbility(this);
-            }
-        } else {
-            System.out.println("\n\tЗдібність " + PURPLE + ability.name + RESET + " не готова до використання для дроїда " + YELLOW + name + RESET + ".");
-            ability.updateCooldown(); // Оновлюємо час охолодження
+        if (choice == 1) {
+            ability.set(); // Активуємо здібність
+            ability.useAbility(this);
         }
     }
 
