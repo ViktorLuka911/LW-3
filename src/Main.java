@@ -58,9 +58,9 @@ public class Main {
         String name = scanner.nextLine();
 
         System.out.println(GREEN + "\n\t*********************************** Меню роботів *************************************" + RESET);
-        System.out.println("\t1 - Легкий        (HP: 50   |   Сила удару: 5-10    |   Шанс отримання шкоди: 30%)");
-        System.out.println("\t2 - Звичайний     (HP: 75   |   Сила удару: 13-18   |   Шанс отримання шкоди: 50%)");
-        System.out.println("\t3 - Броньований   (HP: 100  |   Сила удару: 20-25   |   Шанс отримання шкоди: 70%)");
+        System.out.println("\t1 - Легкий        (HP: 50   |   Сила удару: 5-10    |   Шанс отримання шкоди: 50%)");
+        System.out.println("\t2 - Звичайний     (HP: 75   |   Сила удару: 13-18   |   Шанс отримання шкоди: 70%)");
+        System.out.println("\t3 - Броньований   (HP: 100  |   Сила удару: 20-25   |   Шанс отримання шкоди: 90%)");
         System.out.println(GREEN + "\t**************************************************************************************" + RESET);
 
         int choiceDroid = getValidatedInput(1, 3);
@@ -239,7 +239,7 @@ public class Main {
                 if (droidA.ability.active) {
                     droidA.ability.resetCooldown();
                     if (droidA.ability.activeCount == 0) {
-                        droidA.ability.reset();
+                        droidA.ability.reset(droidA);
                     }
                 } else if (droidA.ability.reloadCount == droidA.ability.reloadTiming) {
                     droidA.action(droidA);
@@ -252,7 +252,7 @@ public class Main {
                 if (droidB.ability.active) {
                     droidB.ability.resetCooldown();
                     if (droidB.ability.activeCount == 0) {
-                        droidB.ability.reset();
+                        droidB.ability.reset(droidB);
                     }
                 } else if (droidB.ability.reloadCount == droidB.ability.reloadTiming) {
                     droidB.action(droidB);
@@ -285,15 +285,41 @@ public class Main {
             Droid attacker = null, target = null;
 
             if (activeTeam) {
+
+                for (Droid droid : allTeamA) {
+                    if (droid.ability.active) {
+                        droid.ability.resetCooldown();
+                        if (droid.ability.activeCount == 0) {
+                            droid.ability.reset(droid);
+                        }
+                    }
+                }
+
                 System.out.println("\n\tКоманда " + CYAN + "A" + RESET + " атакує.");
                 attacker = selectDroidForAttack(teamA, "Оберіть дроїда з команди " + CYAN + "A" + RESET + ", який буде атакувати:");
                 target = selectDroidForAttack(teamB, "Оберіть дроїда з команди " + CYAN + "B" + RESET + ", якого будуть атакувати:");
             } else {
+                for (Droid droid : allTeamB) {
+                    if (droid.ability.active) {
+                        droid.ability.resetCooldown();
+                        if (droid.ability.activeCount == 0) {
+                            droid.ability.reset(droid);
+                        }
+                    }
+                }
+
                 System.out.println("\n\tКоманда " + CYAN + "B" + RESET + " атакує.");
                 attacker = selectDroidForAttack(teamA, "Оберіть дроїда з команди " + CYAN + "B" + RESET + ", який буде атакувати:");
                 target = selectDroidForAttack(teamB, "Оберіть дроїда з команди " + CYAN + "A" + RESET + ", якого будуть атакувати:");
             }
-            attacker.action(target);
+
+            if (attacker.ability.reloadCount == attacker.ability.reloadTiming) {
+                attacker.action(target);
+            } else {
+                System.out.println("\n\tЗдібність " + PURPLE + attacker.ability.name + RESET + " не готова до використання для дроїда " + YELLOW + attacker.name + RESET + ".");
+                attacker.ability.updateCooldown(); // Оновлюємо час охолодження
+            }
+
             attacker.attack(target);
 
             // Зміна активної команди

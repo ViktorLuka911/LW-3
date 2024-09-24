@@ -85,7 +85,7 @@ class Invincible extends Ability {
     public void useAbility(Droid target) {
         originalHitChance = target.hitChance;
         target.hitChance = 0;
-        System.out.println("\n\tДроїд" + YELLOW + target.name + RESET + " став невразливим");
+        System.out.println("\n\tДроїд " + YELLOW + target.name + RESET + " став невразливим");
 
     }
 
@@ -120,7 +120,6 @@ class EnhancedDamage extends Ability {
 }
 
 class EnhancedArmor extends Ability {
-    private int armorBonus = 10;
 
     public EnhancedArmor() {
         super("Збільшена броня", 2, 1); // Lasts for 1 turn, cooldown 2 turns
@@ -128,14 +127,12 @@ class EnhancedArmor extends Ability {
 
     @Override
     public void useAbility(Droid target) {
-        target.hitChance -= armorBonus; // Simulate increased armor by reducing the hit chance
-        System.out.println("\n\tДроїд " + YELLOW + target.name + RESET + " отримав збільшену броню, зменшуючи кількість очок шкоди на " + armorBonus);
+        System.out.println("\n\tДроїд " + YELLOW + target.name + RESET + " отримав збільшену броню, зменшуючи кількість очок шкоди ");
     }
 
     @Override
     public void reset(Droid target) {
         super.reset();
-        target.hitChance += armorBonus;
     }
 }
 
@@ -149,7 +146,7 @@ class Spikes extends Ability {
     @Override
     public void useAbility(Droid target) {
         // Spike effect doesn't have an immediate effect but deals damage when hit
-        System.out.println("\n\t Дроїд " + YELLOW + target.name + RESET + " активував шипи. Атакуючі дроїди отримають шкоду");
+        System.out.println("\n\tДроїд " + YELLOW + target.name + RESET + " активував шипи. Атакуючі дроїди отримають шкоду");
     }
 
     public void onHit(Droid attacker) {
@@ -158,6 +155,7 @@ class Spikes extends Ability {
         if (attacker.health <= 0) {
             attacker.alive = false;
         }
+        reset();
     }
 
     @Override

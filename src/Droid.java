@@ -77,21 +77,22 @@ public class Droid {
             // Обчислюємо пошкодження з урахуванням мінімального та максимального значення
             int damage = random.nextInt((maxDamage - minDamage) + 1) + minDamage;
 
-            // Якщо активована здатність "Збільшена броня", зменшуємо шкоду
-            if (target.hasActiveAbility(EnhancedArmor.class)) {
+            // Якщо активована здатність "Збільшена броня", зменшуємо шкоду вдвічі
+            if ("Збільшена броня" == target.ability.name && target.ability.active) {
                 damage -= damage / 2;
             }
 
             target.health -= damage;
+            System.out.println(YELLOW + target.name + RESET + " отримав пошкодження: -" + damage + "\n\n");
+
 
             if (target.health <= 0) {
+                System.out.print("\n\tДроїда " + YELLOW + target.name + RESET + " знищено.\n");
                 target.alive = false;
             }
 
-            System.out.println(YELLOW + target.name + RESET + " отримав пошкодження: -" + damage + "\n\n");
-
             // Перевіряємо, чи активована здатність "Шипи" у цілі
-            if (target.hasActiveAbility(Spikes.class)) {
+            if ("Шипи" == target.ability.name && target.ability.active) {
                 Spikes spikesAbility = (Spikes) target.getActiveAbility(Spikes.class);
                 spikesAbility.onHit(this); // Завдаємо шкоди атакуючому
             }
@@ -123,20 +124,10 @@ public class Droid {
         return name;
     }
 
-    public boolean hasActiveAbility(Class<? extends Ability> abilityClass) {
-        for (Ability ability : abilities) {
-            if (ability.getClass().equals(abilityClass) && ability.active) {
-                return true;
-            }
-        }
-        return false;
-    }
 
     public Ability getActiveAbility(Class<? extends Ability> abilityClass) {
-        for (Ability ability : abilities) {
-            if (ability.getClass().equals(abilityClass) && ability.active) {
-                return ability;
-            }
+        if (ability.getClass().equals(abilityClass) && ability.active) {
+            return ability;
         }
         return null;
     }
@@ -146,20 +137,20 @@ public class Droid {
 class LightDroid extends Droid {
     // Конструктор для LightDroid
     public LightDroid(String name, Ability ability) {
-        super(name, "Легкий", 50, 50, 30, 5, 10, ability);
+        super(name, "Легкий", 50, 50, 50, 5, 10, ability);
     }
 }
 
 class DefaultDroid extends Droid {
     // Конструктор для StandardDroid
     public DefaultDroid(String name, Ability ability) {
-        super(name, "Звичайний", 75, 75, 50, 13, 18, ability);
+        super(name, "Звичайний", 75, 75, 70, 13, 18, ability);
     }
 }
 
 class ArmoredDroid extends Droid {
     // Конструктор для ArmoredDroid
     public ArmoredDroid(String name, Ability ability) {
-        super(name, "Броньований", 100, 100, 70, 20, 25, ability);
+        super(name, "Броньований", 100, 100, 90, 20, 25, ability);
     }
 }
