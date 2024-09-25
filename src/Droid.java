@@ -5,14 +5,8 @@ import java.util.List;
 
 public class Droid {
     public static final String RESET = "\u001B[0m";  // Скидання кольору
-    public static final String BLACK = "\u001B[30m";
-    public static final String RED = "\u001B[31m";
-    public static final String GREEN = "\u001B[32m";
     public static final String YELLOW = "\u001B[33m";
-    public static final String BLUE = "\u001B[34m";
     public static final String PURPLE = "\u001B[35m";
-    public static final String CYAN = "\u001B[36m";
-    public static final String WHITE = "\u001B[37m";
 
     protected String name;
     protected String type;
@@ -48,10 +42,12 @@ public class Droid {
         this.alive = true;
     }
 
-    public void action(Droid target) {
+    // Використання здібності
+    public void useAbility(Droid target, FileLogger fileLogger) {
         Scanner scanner = new Scanner(System.in);
 
         System.out.println("\n\tВи хочете використати здібність " + PURPLE + ability.name + RESET + " для дроїда " + YELLOW + name + RESET + " ?");
+
         System.out.println("\n\t1 - Так");
         System.out.println("\t2 - Ні");
 
@@ -63,46 +59,59 @@ public class Droid {
 
         if (choice == 1) {
             ability.set(); // Активуємо здібність
-            ability.useAbility(this);
+            ability.useAbility(this, fileLogger);
         }
     }
 
-    public void attack(Droid target) {
+    // Атака
+    public void attack(Droid target, FileLogger fileLogger) {
         Random random = new Random();
         int hit = random.nextInt(100);
 
-        System.out.print("\n\tДроїд " + YELLOW + name + RESET + " атакує " + YELLOW + target.name + RESET + "    -->    ");
+        String attackLogConsole = "\n\n\tДроїд " + YELLOW + name + RESET + " атакує " + YELLOW + target.name + RESET + ":";
+        String attackLogFile = "\n\n\tДроїд " + name + " атакує " + target.name + ":";
+
+        fileLogger.log(attackLogConsole, attackLogFile);
 
         if (hit < target.hitChance) {
-            // Обчислюємо пошкодження з урахуванням мінімального та максимального значення
             int damage = random.nextInt((maxDamage - minDamage) + 1) + minDamage;
 
             // Якщо активована здатність "Збільшена броня", зменшуємо шкоду вдвічі
-            if ("Збільшена броня" == target.ability.name && target.ability.active) {
+            if ("Збільшена броня".equals(target.ability.getName()) && target.ability.isActive()) {
                 damage -= damage / 2;
             }
 
             target.health -= damage;
-            System.out.println(YELLOW + target.name + RESET + " отримав пошкодження: -" + damage + "\n\n");
+            String damageLogConsole = "\n\tДроїд " + YELLOW + target.name + RESET + " отримав пошкодження: -" + damage + "\n\n";
+            String damageLogFile = "\n\tДроїд " + target.name + " отримав пошкодження: -" + damage + "\n\n";
 
+            fileLogger.log(damageLogConsole, damageLogFile);
 
             if (target.health <= 0) {
-                System.out.print("\n\tДроїда " + YELLOW + target.name + RESET + " знищено.\n");
+                String deathLogConsole = "\n\tДроїда " + YELLOW + target.name + RESET + " знищено.\n";
+                String deathLogFile = "\n\tДроїда " + target.name + " знищено.\n";
+
+                fileLogger.log(deathLogConsole, deathLogFile);
                 target.alive = false;
             }
 
-            // Перевіряємо, чи активована здатність "Шипи" у цілі
-            if ("Шипи" == target.ability.name && target.ability.active) {
-                Spikes spikesAbility = (Spikes) target.getActiveAbility(Spikes.class);
-                spikesAbility.onHit(this); // Завдаємо шкоди атакуючому
+            // Якщо активована здатність "Шипи" у цілі
+            if ("Шипи".equals(ability.getName()) && target.ability.isActive()) {
+                Spikes spikesAbility = (Spikes) target.ability;
+                spikesAbility.onHit(this, fileLogger); // Завдаємо шкоди атакуючому
+                String spikesLogConsole = "\n\tШипи завдали шкоди атакуючому дроїду " + YELLOW + name + RESET;
+                String spikesLogFile = "\n\tШипи завдали шкоди атакуючому дроїду " + name;
+
+                fileLogger.log(spikesLogConsole, spikesLogFile);
             }
 
         } else {
-            System.out.println("Промах\n\n");
+            String missLog = "\n\tПромах\n\n";
+            fileLogger.log(missLog, missLog);
         }
     }
 
-
+    //--------------------------Методи для виведення інформації про дроїда---------------------------------
     @Override
     public String toString() {
         return String.format("Ім'я: %-10s | Тип: %-15s | Здоров'я: %-5d | Здібність: %s", name, type, health, ability.name);
@@ -116,6 +125,8 @@ public class Droid {
         return name + " | HP: " + health + " | " + type + " | " + ability.name + ((ability.active) ? " * " : "   ");
     }
 
+    //--------------------------Методи для виведення інформації про дроїда---------------------------------
+
     public boolean isAlive() {
         return alive;
     }
@@ -124,15 +135,38 @@ public class Droid {
         return name;
     }
 
+    //--------------------------Методи для роботи зі здібністю---------------------------------
 
-    public Ability getActiveAbility(Class<? extends Ability> abilityClass) {
-        if (ability.getClass().equals(abilityClass) && ability.active) {
-            return ability;
-        }
-        return null;
+    public boolean isActiveAbility() {
+        return ability.isActive();
+    }
+
+    public boolean isAbilityReady() {
+        return ability.getReloadCount() == ability.getReloadTiming();
+    }
+
+    public boolean isAbilityEnd() {
+        return ability.getActiveCount() == 0;
+    }
+
+    // Розрядка здібності
+    public void abilityResetCooldown() {
+        ability.resetCooldown();
+    }
+
+    // Зарядка здібності
+    public void abilityUpdateCooldown() {
+        ability.updateCooldown();
+    }
+
+    // Скидання здібності
+    public void abilityReset(FileLogger fileLogger, Droid target) {
+        ability.reset(fileLogger, target);
     }
 
 }
+
+//---------------------------------------Дочірні класи, які реалізують різні види дроїдів-----------------------------
 
 class LightDroid extends Droid {
     // Конструктор для LightDroid

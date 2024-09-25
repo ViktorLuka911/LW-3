@@ -1,14 +1,6 @@
 public abstract class Ability {
     public static final String RESET = "\u001B[0m";  // Скидання кольору
-    public static final String BLACK = "\u001B[30m";
-    public static final String RED = "\u001B[31m";
-    public static final String GREEN = "\u001B[32m";
     public static final String YELLOW = "\u001B[33m";
-    public static final String BLUE = "\u001B[34m";
-    public static final String PURPLE = "\u001B[35m";
-    public static final String CYAN = "\u001B[36m";
-    public static final String WHITE = "\u001B[37m";
-
 
     protected String name;
 
@@ -25,37 +17,77 @@ public abstract class Ability {
         this.activeTiming = activeTiming;
     }
 
-    public abstract void useAbility(Droid target);
+    //-----------------------------Робота зі здібністю---------------------------------
 
-    public void reset() {
+    // Абстрактний метод для активації здібності
+    public abstract void useAbility(Droid target, FileLogger fileLogger);
+
+    // Вимкнення здібності
+    public void reset(FileLogger fileLogger, Droid target) {
         active = false;
+
+        String abilityMessageConsole = "\n\t" + YELLOW + target.name + RESET + " скинув здібність " + name;
+        String abilityMessageFile = "\n\t" + target.name + " скинув здібність " + name;
+
+        fileLogger.log(abilityMessageConsole, abilityMessageFile);
     }
 
+    // Ввімкнення здібності
     public void set() {
         reloadCount = 0;
         activeCount = activeTiming;
         active = true;
     }
 
+    // Зарядка здібності
     public void updateCooldown() {
         if (reloadCount < reloadTiming) {
-            reloadCount++; // Оновлюємо лічильник охолодження
+            reloadCount++;
         }
     }
 
+    // Розрядка здібності
     public void resetCooldown() {
         if (activeCount > 0) {
             activeCount--;
         }
     }
 
+    //----------------------------Перевантажений метод виведення здібності------------------------
+
     @Override
     public String toString() {
         return name;
     }
 
-    public abstract void reset(Droid target);
+    //------------------------------------Гетери------------------------------------------
+
+    public int getActiveCount() {
+        return activeCount;
+    }
+
+    public int getReloadCount() {
+        return reloadCount;
+    }
+
+    public boolean isActive() {
+        return active;
+    }
+
+    public int getActiveTiming() {
+        return activeTiming;
+    }
+
+    public int getReloadTiming() {
+        return reloadTiming;
+    }
+
+    public String getName() {
+        return name;
+    }
 }
+
+//---------------------------------------Дочірні класи, які реалізують різні здібності-----------------------------
 
 class Healing extends Ability {
     public Healing() {
@@ -63,14 +95,18 @@ class Healing extends Ability {
     }
 
     @Override
-    public void useAbility(Droid target) {
+    public void useAbility(Droid target, FileLogger fileLogger) {
         target.health = Math.min(target.health + 20, target.maxHealth);
-        System.out.println("\n\tДроїд " + YELLOW + target.name + RESET + " відновив здоров'я до " + target.health);
+
+        String abilityMessageConsole = "\n\tДроїд " + YELLOW + target.name + RESET + " відновив здоров'я до " + target.health;
+        String abilityMessageFile = "\n\tДроїд " + target.name + " відновив здоров'я до " + target.health;
+
+        fileLogger.log(abilityMessageConsole, abilityMessageFile);
     }
 
     @Override
-    public void reset(Droid target) {
-        super.reset();
+    public void reset(FileLogger fileLogger, Droid target) {
+        super.reset(fileLogger, target);
     }
 }
 
@@ -78,20 +114,22 @@ class Invincible extends Ability {
     private int originalHitChance;
 
     public Invincible() {
-        super("Недосяжність", 3, Integer.MAX_VALUE);
+        super("Недосяжність", 3, 1);
     }
 
     @Override
-    public void useAbility(Droid target) {
+    public void useAbility(Droid target, FileLogger fileLogger) {
         originalHitChance = target.hitChance;
         target.hitChance = 0;
-        System.out.println("\n\tДроїд " + YELLOW + target.name + RESET + " став невразливим");
+        String abilityMessageConsole = "\n\tДроїд " + YELLOW + target.name + RESET + " став невразливим";
+        String abilityMessageFile = "\n\tДроїд " + target.name + " став невразливим";
 
+        fileLogger.log(abilityMessageConsole, abilityMessageFile);
     }
 
     @Override
-    public void reset(Droid target) {
-        super.reset();
+    public void reset(FileLogger fileLogger, Droid target) {
+        super.reset(fileLogger, target);
         target.hitChance = originalHitChance;
     }
 }
@@ -104,35 +142,40 @@ class EnhancedDamage extends Ability {
     }
 
     @Override
-    public void useAbility(Droid target) {
+    public void useAbility(Droid target, FileLogger fileLogger) {
         target.minDamage += damageBonus;
         target.maxDamage += damageBonus;
-        System.out.println("\n\tДроїд " + YELLOW + target.name + RESET + " збільшує шкоду на " + damageBonus + " очок");
+        String abilityMessageConsole = "\n\tДроїд " + YELLOW + target.name + RESET + " збільшує шкоду на " + damageBonus + " очок";
+        String abilityMessageFile = "\n\tДроїд " + target.name + " збільшує шкоду на " + damageBonus + " очок";
 
+        fileLogger.log(abilityMessageConsole, abilityMessageFile);
     }
 
     @Override
-    public void reset(Droid target) {
-        super.reset();
+    public void reset(FileLogger fileLogger, Droid target) {
+        super.reset(fileLogger, target);
         target.minDamage -= damageBonus;
         target.maxDamage -= damageBonus;
     }
 }
 
 class EnhancedArmor extends Ability {
-
     public EnhancedArmor() {
         super("Збільшена броня", 2, 1); // Lasts for 1 turn, cooldown 2 turns
     }
 
     @Override
-    public void useAbility(Droid target) {
-        System.out.println("\n\tДроїд " + YELLOW + target.name + RESET + " отримав збільшену броню, зменшуючи кількість очок шкоди ");
+    public void useAbility(Droid target, FileLogger fileLogger) {
+
+        String abilityMessageConsole = "\n\tДроїд " + YELLOW + target.name + RESET + " отримав збільшену броню, зменшуючи кількість очок шкоди ";
+        String abilityMessageFile = "\n\tДроїд " + target.name + " отримав збільшену броню, зменшуючи кількість очок шкоди ";
+
+        fileLogger.log(abilityMessageConsole, abilityMessageFile);
     }
 
     @Override
-    public void reset(Droid target) {
-        super.reset();
+    public void reset(FileLogger fileLogger, Droid target) {
+        super.reset(fileLogger, target);
     }
 }
 
@@ -144,22 +187,29 @@ class Spikes extends Ability {
     }
 
     @Override
-    public void useAbility(Droid target) {
-        // Spike effect doesn't have an immediate effect but deals damage when hit
-        System.out.println("\n\tДроїд " + YELLOW + target.name + RESET + " активував шипи. Атакуючі дроїди отримають шкоду");
+    public void useAbility(Droid target, FileLogger fileLogger) {
+
+        String abilityMessageConsole = "\n\tДроїд " + YELLOW + target.name + RESET + " активував шипи. Атакуючі дроїди отримають шкоду.";
+        String abilityMessageFile = "\n\tДроїд " + target.name + " активував шипи. Атакуючі дроїди отримають шкоду.";
+
+        fileLogger.log(abilityMessageConsole, abilityMessageFile);
     }
 
-    public void onHit(Droid attacker) {
-        System.out.println(YELLOW + attacker.name + RESET + " отримав шкоду від шипів: " + spikeDamage);
+    public void onHit(Droid attacker, FileLogger fileLogger) {
+
+        String abilityMessageConsole = "\t" + YELLOW + attacker.name + RESET + " отримав шкоду від шипів: " + spikeDamage;
+        String abilityMessageFile = "\t" + attacker.name + " отримав шкоду від шипів: " + spikeDamage;
+
+        fileLogger.log(abilityMessageConsole, abilityMessageFile);
         attacker.health -= spikeDamage;
         if (attacker.health <= 0) {
             attacker.alive = false;
         }
-        reset();
+        reset(fileLogger, attacker);
     }
 
     @Override
-    public void reset(Droid target) {
-        super.reset();
+    public void reset(FileLogger fileLogger, Droid target) {
+        super.reset(fileLogger, target);
     }
 }
