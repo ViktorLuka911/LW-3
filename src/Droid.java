@@ -17,6 +17,7 @@ public class Droid {
     protected int maxDamage;
     protected Ability ability;
     protected boolean alive;
+
     // Статичний список здібностей, спільний для всіх дроїдів
     protected static final List<Ability> abilities = new ArrayList<>();
 
@@ -93,6 +94,7 @@ public class Droid {
 
                 fileLogger.log(deathLogConsole, deathLogFile);
                 target.alive = false;
+                target.health = 0;
             }
 
             // Якщо активована здатність "Шипи" у цілі
@@ -118,7 +120,7 @@ public class Droid {
     }
 
     public String inTeamFightInfo() {
-        return String.format("%-10s | HP: %-5d | %-15s | %s", name, health, type, ability.name);
+        return String.format("%-10s | HP: %-5d | %-15s | %s" + (ability.name + ((ability.active) ? " * " : "   ")), name, health, type, ability.name);
     }
 
     public String inSingleFightInfo() {

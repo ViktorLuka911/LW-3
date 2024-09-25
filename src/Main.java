@@ -201,8 +201,10 @@ public class Main {
         FileLogger fileLogger;
 
         // Запитуємо у користувача назву файлу
-        System.out.print("\n\tВведіть назву файлу для збереження логів (наприклад, battle_log.txt): ");
+        System.out.print("\n\tВведіть назву файлу для збереження логів: ");
         String fileName = scanner.nextLine(); // Зчитуємо назву файлу
+
+        fileName = "D:\\2_kurs-1_sem\\PP\\LW-3\\Program\\Battles\\" + fileName;
 
         // Створюємо FileLogger для ведення логів
         try {
@@ -244,11 +246,14 @@ public class Main {
         Scanner scanner = new Scanner(System.in);
         FileLogger fileLogger;
 
-        ArrayList<Droid> allTeamA = teamA, allTeamB = teamB;
+        ArrayList<Droid> allTeamA = new ArrayList<>(teamA); // Створюємо копію teamA
+        ArrayList<Droid> allTeamB = new ArrayList<>(teamB); // Створюємо копію teamB
 
         // Запитуємо у користувача назву файлу
-        System.out.print("Введіть назву файлу для збереження логів: ");
+        System.out.print("\n\tВведіть назву файлу для збереження логів: ");
         String fileName = scanner.nextLine(); // Зчитуємо назву файлу
+
+        fileName = "D:\\2_kurs-1_sem\\PP\\LW-3\\Program\\Battles\\" + fileName;
 
         // Створюємо FileLogger для ведення логів
         try {
@@ -262,12 +267,13 @@ public class Main {
         boolean activeTeam = true;
 
         while (!teamA.isEmpty() && !teamB.isEmpty()) {
+            // Виведення інформації про команди і їх дроїдів
             for (int i = 0; i < allTeamA.size(); i++) {
                 Droid droidTeamA = allTeamA.get(i), droidTeamB = allTeamB.get(i);
                 String droidStateTeamA = allTeamA.get(i).inTeamFightInfo();
                 String droidStateTeamB = allTeamB.get(i).inTeamFightInfo();
 
-                String fightStateFile = droidStateTeamA + "                  " + droidStateTeamB;
+                String fightStateFile = droidStateTeamA + "                  " + droidStateTeamB + "\n";
 
                 if (droidTeamA.isAlive()) {
                     droidStateTeamA = "\t" + BLUE + droidStateTeamA + RESET;
@@ -281,7 +287,7 @@ public class Main {
                     droidStateTeamB = "\t" + BLACK + allTeamB.get(i).inTeamFightInfo() + RESET;
                 }
 
-                String fightStateConsole = droidStateTeamA + "                  " + droidStateTeamB;
+                String fightStateConsole = droidStateTeamA + "                  " + droidStateTeamB + "\n";
 
                 fileLogger.log(fightStateConsole, fightStateFile);
             }
@@ -289,12 +295,12 @@ public class Main {
             Droid attacker, target;
 
             if (activeTeam) {
-                System.out.println("\n\tКоманда A атакує.");
+                fileLogger.log("\n\tКоманда " + YELLOW + "A" + RESET + " атакує.", "\n\tКоманда A атакує.");
                 attacker = selectDroidForAttack(teamA, "Оберіть дроїда з команди A, який буде атакувати:");
                 target = selectDroidForAttack(teamB, "Оберіть дроїда з команди B, якого будуть атакувати:");
 
             } else {
-                System.out.println("\n\tКоманда B атакує.");
+                fileLogger.log("\n\tКоманда " + YELLOW + "B" + RESET + " атакує.", "\n\tКоманда B атакує.");
                 attacker = selectDroidForAttack(teamB, "Оберіть дроїда з команди B, який буде атакувати:");
                 target = selectDroidForAttack(teamA, "Оберіть дроїда з команди A, якого будуть атакувати:");
             }
