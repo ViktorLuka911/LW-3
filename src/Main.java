@@ -247,7 +247,7 @@ public class Main {
         ArrayList<Droid> allTeamA = teamA, allTeamB = teamB;
 
         // Запитуємо у користувача назву файлу
-        System.out.print("Введіть назву файлу для збереження логів (наприклад, battle_log.txt): ");
+        System.out.print("Введіть назву файлу для збереження логів: ");
         String fileName = scanner.nextLine(); // Зчитуємо назву файлу
 
         // Створюємо FileLogger для ведення логів
@@ -331,7 +331,7 @@ public class Main {
         Scanner scanner = new Scanner(System.in);
 
         // Стандартний шлях, до якого буде додаватися введене ім'я файлу
-        String defaultPath = "D:\\2_kurs-1_sem\\PP\\LW-3\\Program\\";  // Можете змінити цей шлях на потрібний вам
+        String defaultPath = "D:\\2_kurs-1_sem\\PP\\LW-3\\Program\\Battles\\";  // Можете змінити цей шлях на потрібний вам
 
         System.out.print("\n\tВведіть ім'я файлу: ");
         String fileName = scanner.nextLine();  // Зчитуємо лише ім'я файлу
