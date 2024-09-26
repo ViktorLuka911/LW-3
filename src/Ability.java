@@ -18,9 +18,6 @@ public abstract class Ability {
 
     //-----------------------------Робота зі здібністю---------------------------------
 
-    // Абстрактний метод для активації здібності
-    public abstract void useAbility(Droid target, FileLogger fileLogger);
-
     // Вимкнення здібності
     public void reset(FileLogger fileLogger, Droid target) {
         active = false;
@@ -32,7 +29,7 @@ public abstract class Ability {
     }
 
     // Ввімкнення здібності
-    public void set() {
+    public void set(FileLogger fileLogger, Droid target) {
         reloadCount = 0;
         activeCount = activeTiming;
         active = true;
@@ -89,8 +86,8 @@ class Healing extends Ability {
         super("Регенерація", 2, 0);
     }
 
-    @Override
-    public void useAbility(Droid target, FileLogger fileLogger) {
+    public void set(FileLogger fileLogger, Droid target) {
+        super.set(fileLogger, target);
         target.health = Math.min(target.health + 20, target.maxHealth);
 
         String abilityMessageConsole = "\n\tДроїд " + ConsoleColors.YELLOW + target.name + ConsoleColors.RESET + " відновив здоров'я до " + target.health;
@@ -112,8 +109,8 @@ class Invincible extends Ability {
         super("Недосяжність", 3, 1);
     }
 
-    @Override
-    public void useAbility(Droid target, FileLogger fileLogger) {
+    public void set(FileLogger fileLogger, Droid target) {
+        super.set(fileLogger, target);
         originalHitChance = target.hitChance;
         target.hitChance = 0;
         String abilityMessageConsole = "\n\tДроїд " + ConsoleColors.YELLOW + target.name + ConsoleColors.RESET + " став невразливим";
@@ -136,8 +133,8 @@ class EnhancedDamage extends Ability {
         super("Збільшена шкода", 2, 1); // Ability lasts for 1 turn and has 2 turns cooldown
     }
 
-    @Override
-    public void useAbility(Droid target, FileLogger fileLogger) {
+    public void set(FileLogger fileLogger, Droid target) {
+        super.set(fileLogger, target);
         target.minDamage += damageBonus;
         target.maxDamage += damageBonus;
         String abilityMessageConsole = "\n\tДроїд " + ConsoleColors.YELLOW + target.name + ConsoleColors.RESET + " збільшує шкоду на " + damageBonus + " очок";
@@ -159,8 +156,8 @@ class EnhancedArmor extends Ability {
         super("Збільшена броня", 2, 1); // Lasts for 1 turn, cooldown 2 turns
     }
 
-    @Override
-    public void useAbility(Droid target, FileLogger fileLogger) {
+    public void set(FileLogger fileLogger, Droid target) {
+        super.set(fileLogger, target);
 
         String abilityMessageConsole = "\n\tДроїд " + ConsoleColors.YELLOW + target.name + ConsoleColors.RESET + " отримав збільшену броню, зменшуючи кількість очок шкоди ";
         String abilityMessageFile = "\n\tДроїд " + target.name + " отримав збільшену броню, зменшуючи кількість очок шкоди ";
@@ -180,8 +177,8 @@ class Spikes extends Ability {
         super("Шипи", 2, Integer.MAX_VALUE); // Spikes are passive and last indefinitely
     }
 
-    @Override
-    public void useAbility(Droid target, FileLogger fileLogger) {
+    public void set(FileLogger fileLogger, Droid target) {
+        super.set(fileLogger, target);
 
         String abilityMessageConsole = "\n\tДроїд " + ConsoleColors.YELLOW + target.name + ConsoleColors.RESET + " активував шипи. Атакуючі дроїди отримають шкоду.";
         String abilityMessageFile = "\n\tДроїд " + target.name + " активував шипи. Атакуючі дроїди отримають шкоду.";

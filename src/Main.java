@@ -43,6 +43,7 @@ public class Main {
 
     //-------------------------------------------Створення дроїдів-------------------------------
 
+    // Створення дроїда
     public static void createDroid() {
         Scanner scanner = new Scanner(System.in);
 
@@ -72,6 +73,7 @@ public class Main {
         listDroid.add(droid);
     }
 
+    // Отримання дроїда звказаним вибором
     private static Droid getDroid(int choiceAbility, int choiceDroid, String name) {
         Ability ability = switch (choiceAbility) {
             case 1 -> new Healing();
@@ -99,7 +101,7 @@ public class Main {
         }
     }
 
-    //-------------------------------------------Підготовка до битви-------------------------------
+    //-------------------------------------------Підготовка до битви один на один-------------------------------
 
     public static void battleOneOnOne() {
         Scanner scanner = new Scanner(System.in);
@@ -110,43 +112,43 @@ public class Main {
 
         ArrayList<Droid> availableDroids = new ArrayList<>(listDroid);
 
-        System.out.println("\n\tОберіть першого дроїда:\n");
+        // Select the first droid
+        Droid droid1 = selectDroid(availableDroids, "першого");
 
-        for (int i = 0; i < availableDroids.size(); i++) {
-            System.out.println("\t" + (i + 1) + " - " + availableDroids.get(i));
-        }
+        // Remove the first droid from available options
+        availableDroids.remove(droid1);
 
-        int droid1Index = getValidatedInput(1, availableDroids.size()) - 1;
-        Droid droid1 = availableDroids.get(droid1Index);
-
-        // Видаляємо першого дроїда з доступних
-        availableDroids.remove(droid1Index);
-
-        // Вибір другого дроїда
-        System.out.println("\n\tОберіть другого дроїда:\n");
-        for (int i = 0; i < availableDroids.size(); i++) {
-            System.out.println("\t" + (i + 1) + " - " + availableDroids.get(i));
-        }
-
-        int droid2Index = getValidatedInput(1, availableDroids.size()) - 1;
-        Droid droid2 = availableDroids.get(droid2Index);
+        // Select the second droid
+        Droid droid2 = selectDroid(availableDroids, "другого");
 
         System.out.println("\n\t" + droid1.getName() + " VS " + droid2.getName());
 
         System.out.println("\n\tЧи записувати бій у файл?");
-
         System.out.println("\n\t1 - Так");
         System.out.println("\t2 - Ні");
 
         int choice = getValidatedInput(1, 2);
-        boolean saveInFile = 1 == choice;
+        boolean saveInFile = (1 == choice);
 
         System.out.print("\n\tПримітка: натискайте Enter для початку бою і для виконання ходу.");
-
         scanner.nextLine();
 
         singleFight(droid1, droid2, saveInFile);
     }
+
+    // Вибір дроїда для битви один на один
+    private static Droid selectDroid(ArrayList<Droid> availableDroids, String ordinal) {
+        System.out.println("\n\tОберіть " + ordinal + " дроїда:\n");
+
+        for (int i = 0; i < availableDroids.size(); i++) {
+            System.out.println("\t" + (i + 1) + " - " + availableDroids.get(i));
+        }
+
+        int droidIndex = getValidatedInput(1, availableDroids.size()) - 1;
+        return availableDroids.get(droidIndex);
+    }
+
+    //-------------------------------------------Підготовка до битви команда на команду-------------------------------
 
     public static void battleTeamOnTeam() {
         Scanner scanner = new Scanner(System.in);
@@ -188,7 +190,30 @@ public class Main {
         teamFight(team1, team2, saveInFile);
     }
 
-    //-------------------------------------------Проведення битв-------------------------------
+    // Функція для вибору дроїдів для команди
+    public static ArrayList<Droid> selectTeam(ArrayList<Droid> availableDroids, int teamSize, String teamName) {
+        ArrayList<Droid> team = new ArrayList<>();
+        System.out.println("\n\tОберіть дроїдів для " + teamName + ":");
+
+        while (team.size() < teamSize) {
+            System.out.println("\n\tДоступні дроїди:");
+            for (int i = 0; i < availableDroids.size(); i++) {
+                System.out.println("\t" + (i + 1) + " - " + availableDroids.get(i));
+            }
+
+            System.out.print("\n\tОберіть дроїда для " + teamName + ": ");
+            int droidIndex = getValidatedInput(1, availableDroids.size()) - 1;
+
+            Droid selectedDroid = availableDroids.get(droidIndex);
+            team.add(selectedDroid);
+            availableDroids.remove(droidIndex); // Видаляємо вибраного дроїда з доступних
+            System.out.println("\tДодано до " + teamName + ": " + selectedDroid.getName());
+        }
+
+        return team;
+    }
+
+    //-------------------------------------------Проведення битв один на один-------------------------------
 
     public static void singleFight(Droid droidA, Droid droidB, boolean saveInFile) {
         Scanner scanner = new Scanner(System.in);
@@ -224,9 +249,9 @@ public class Main {
             fileLogger.log(fightStateConsole, fightStateFile);
 
             if (activeDroid) {
-                handleDroidAction(droidA, droidB, fileLogger);  // Використовуємо спільну функцію для дроїда A
+                handleDroidAbility(droidA, droidB, fileLogger);
             } else {
-                handleDroidAction(droidB, droidA, fileLogger);  // Використовуємо спільну функцію для дроїда B
+                handleDroidAbility(droidB, droidA, fileLogger);
             }
             activeDroid = !activeDroid;
             scanner.nextLine(); // Чекаємо на натискання Enter
@@ -240,6 +265,8 @@ public class Main {
         // Закриваємо файл, якщо записували у файл
         fileLogger.close();
     }
+
+    //-------------------------------------------Проведення битв команда на команду-------------------------------
 
     public static void teamFight(ArrayList<Droid> teamA, ArrayList<Droid> teamB, boolean saveInFile) {
         Scanner scanner = new Scanner(System.in);
@@ -304,12 +331,7 @@ public class Main {
                 target = selectDroidForAttack(teamA, "Оберіть дроїда з команди A, якого будуть атакувати:");
             }
 
-            if (attacker.isAbilityReady()) {
-                attacker.useAbility(target, fileLogger);
-            } else {
-                System.out.println("\n\tЗдібність " + ConsoleColors.PURPLE + attacker.ability.name + ConsoleColors.RESET + " не готова до використання для дроїда " + ConsoleColors.YELLOW + attacker.name + ConsoleColors.RESET + ".");
-                attacker.abilityUpdateCooldown();
-            }
+            handleDroidAbility(attacker, target, fileLogger);
 
             attacker.attack(target, fileLogger);
 
@@ -328,6 +350,16 @@ public class Main {
 
         fileLogger.log(winnerMessageConsole, winnerMessageFile);
         fileLogger.close();
+    }
+
+    // Функція для вибору дроїда для атаки у битві команда на команду
+    private static Droid selectDroidForAttack(ArrayList<Droid> team, String message) {
+        System.out.println("\n\t" + message);
+        for (int i = 0; i < team.size(); i++) {
+            System.out.println("\t" + (i + 1) + " - " + team.get(i).getName());
+        }
+        int selectedIndex = getValidatedInput(1, team.size()) - 1;
+        return team.get(selectedIndex);
     }
 
     //-------------------------------------------Відтворення бою з файлу-------------------------------
@@ -354,10 +386,10 @@ public class Main {
         }
     }
 
-    //-------------------------------------------Допоміжіні функції-------------------------------
+    //-------------------------------------------Допоміжні функції-------------------------------
 
     // Функція для роботи зі здібностями
-    private static void handleDroidAction(Droid attacker, Droid target, FileLogger fileLogger) {
+    private static void handleDroidAbility(Droid attacker, Droid target, FileLogger fileLogger) {
         // Перевіряємо чи активна здібність
         if (attacker.isActiveAbility()) {
             attacker.abilityResetCooldown();
@@ -365,7 +397,16 @@ public class Main {
                 attacker.abilityReset(fileLogger, attacker);
             }
         } else if (attacker.isAbilityReady()) {
-            attacker.useAbility(attacker, fileLogger);
+            System.out.println("\n\tВи хочете використати здібність " + ConsoleColors.PURPLE + attacker.getAbility().getName() + ConsoleColors.RESET + " для дроїда " + ConsoleColors.YELLOW + attacker.getName() + ConsoleColors.RESET + " ?");
+
+            System.out.println("\n\t1 - Так");
+            System.out.println("\t2 - Ні");
+
+            int choice = getValidatedInput(1, 2);
+
+            if (choice == 1) {
+                attacker.activateAbility(fileLogger);
+            }
         } else {
             System.out.println("\n\tЗдібність " + ConsoleColors.PURPLE + attacker.ability.name + ConsoleColors.RESET + " не готова до використання для дроїда " + ConsoleColors.YELLOW + attacker.name + ConsoleColors.RESET + ".");
             attacker.abilityUpdateCooldown();
@@ -373,39 +414,6 @@ public class Main {
 
         // Атака на ціль
         attacker.attack(target, fileLogger);
-    }
-
-    // Функція для вибору дроїда для атаки
-    private static Droid selectDroidForAttack(ArrayList<Droid> team, String message) {
-        System.out.println("\n\t" + message);
-        for (int i = 0; i < team.size(); i++) {
-            System.out.println("\t" + (i + 1) + " - " + team.get(i).getName());
-        }
-        int selectedIndex = getValidatedInput(1, team.size()) - 1;
-        return team.get(selectedIndex);
-    }
-
-    // Функція для вибору дроїдів для команди
-    public static ArrayList<Droid> selectTeam(ArrayList<Droid> availableDroids, int teamSize, String teamName) {
-        ArrayList<Droid> team = new ArrayList<>();
-        System.out.println("\n\tОберіть дроїдів для " + teamName + ":");
-
-        while (team.size() < teamSize) {
-            System.out.println("\n\tДоступні дроїди:");
-            for (int i = 0; i < availableDroids.size(); i++) {
-                System.out.println("\t" + (i + 1) + " - " + availableDroids.get(i));
-            }
-
-            System.out.print("\n\tОберіть дроїда для " + teamName + ": ");
-            int droidIndex = getValidatedInput(1, availableDroids.size()) - 1;
-
-            Droid selectedDroid = availableDroids.get(droidIndex);
-            team.add(selectedDroid);
-            availableDroids.remove(droidIndex); // Видаляємо вибраного дроїда з доступних
-            System.out.println("\tДодано до " + teamName + ": " + selectedDroid.getName());
-        }
-
-        return team;
     }
 
     //Функція для правильного введення

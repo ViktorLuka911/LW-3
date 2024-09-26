@@ -1,9 +1,8 @@
 import java.util.Random;
-import java.util.Scanner;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Droid {
+public abstract class Droid {
 
     protected String name;
     protected String type;
@@ -41,20 +40,8 @@ public class Droid {
     }
 
     // Використання здібності
-    public void useAbility(Droid target, FileLogger fileLogger) {
-        Scanner scanner = new Scanner(System.in);
-
-        System.out.println("\n\tВи хочете використати здібність " + ConsoleColors.PURPLE + ability.name + ConsoleColors.RESET + " для дроїда " + ConsoleColors.YELLOW + name + ConsoleColors.RESET + " ?");
-
-        System.out.println("\n\t1 - Так");
-        System.out.println("\t2 - Ні");
-
-        int choice = Main.getValidatedInput(1, 2);
-
-        if (choice == 1) {
-            ability.set(); // Активуємо здібність
-            ability.useAbility(this, fileLogger);
-        }
+    public void activateAbility(FileLogger fileLogger) {
+        ability.set(fileLogger, this); // Активуємо здібність
     }
 
     // Атака
@@ -131,6 +118,10 @@ public class Droid {
     }
 
     //--------------------------Методи для роботи зі здібністю---------------------------------
+
+    public Ability getAbility() {
+        return ability;
+    }
 
     public boolean isActiveAbility() {
         return ability.isActive();
