@@ -4,9 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Droid {
-    public static final String RESET = "\u001B[0m";  // Скидання кольору
-    public static final String YELLOW = "\u001B[33m";
-    public static final String PURPLE = "\u001B[35m";
 
     protected String name;
     protected String type;
@@ -47,16 +44,12 @@ public class Droid {
     public void useAbility(Droid target, FileLogger fileLogger) {
         Scanner scanner = new Scanner(System.in);
 
-        System.out.println("\n\tВи хочете використати здібність " + PURPLE + ability.name + RESET + " для дроїда " + YELLOW + name + RESET + " ?");
+        System.out.println("\n\tВи хочете використати здібність " + ConsoleColors.PURPLE + ability.name + ConsoleColors.RESET + " для дроїда " + ConsoleColors.YELLOW + name + ConsoleColors.RESET + " ?");
 
         System.out.println("\n\t1 - Так");
         System.out.println("\t2 - Ні");
 
-        int choice;
-        do {
-            System.out.print("\n\tВаш вибір: ");
-            choice = scanner.nextInt();
-        } while (choice < 1 || choice > 2);
+        int choice = Main.getValidatedInput(1, 2);
 
         if (choice == 1) {
             ability.set(); // Активуємо здібність
@@ -69,7 +62,7 @@ public class Droid {
         Random random = new Random();
         int hit = random.nextInt(100);
 
-        String attackLogConsole = "\n\n\tДроїд " + YELLOW + name + RESET + " атакує " + YELLOW + target.name + RESET + ":";
+        String attackLogConsole = "\n\n\tДроїд " + ConsoleColors.YELLOW + name + ConsoleColors.RESET + " атакує " + ConsoleColors.YELLOW + target.name + ConsoleColors.RESET + ":";
         String attackLogFile = "\n\n\tДроїд " + name + " атакує " + target.name + ":";
 
         fileLogger.log(attackLogConsole, attackLogFile);
@@ -83,13 +76,13 @@ public class Droid {
             }
 
             target.health -= damage;
-            String damageLogConsole = "\n\tДроїд " + YELLOW + target.name + RESET + " отримав пошкодження: -" + damage + "\n\n";
+            String damageLogConsole = "\n\tДроїд " + ConsoleColors.YELLOW + target.name + ConsoleColors.RESET + " отримав пошкодження: -" + damage + "\n\n";
             String damageLogFile = "\n\tДроїд " + target.name + " отримав пошкодження: -" + damage + "\n\n";
 
             fileLogger.log(damageLogConsole, damageLogFile);
 
             if (target.health <= 0) {
-                String deathLogConsole = "\n\tДроїда " + YELLOW + target.name + RESET + " знищено.\n";
+                String deathLogConsole = "\n\tДроїда " + ConsoleColors.YELLOW + target.name + ConsoleColors.RESET + " знищено.\n";
                 String deathLogFile = "\n\tДроїда " + target.name + " знищено.\n";
 
                 fileLogger.log(deathLogConsole, deathLogFile);
@@ -101,7 +94,7 @@ public class Droid {
             if ("Шипи".equals(ability.getName()) && target.ability.isActive()) {
                 Spikes spikesAbility = (Spikes) target.ability;
                 spikesAbility.onHit(this, fileLogger); // Завдаємо шкоди атакуючому
-                String spikesLogConsole = "\n\tШипи завдали шкоди атакуючому дроїду " + YELLOW + name + RESET;
+                String spikesLogConsole = "\n\tШипи завдали шкоди атакуючому дроїду " + ConsoleColors.YELLOW + name + ConsoleColors.RESET;
                 String spikesLogFile = "\n\tШипи завдали шкоди атакуючому дроїду " + name;
 
                 fileLogger.log(spikesLogConsole, spikesLogFile);

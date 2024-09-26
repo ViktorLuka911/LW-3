@@ -1,6 +1,5 @@
+
 public abstract class Ability {
-    public static final String RESET = "\u001B[0m";  // Скидання кольору
-    public static final String YELLOW = "\u001B[33m";
 
     protected String name;
 
@@ -26,7 +25,7 @@ public abstract class Ability {
     public void reset(FileLogger fileLogger, Droid target) {
         active = false;
 
-        String abilityMessageConsole = "\n\t" + YELLOW + target.name + RESET + " скинув здібність " + name;
+        String abilityMessageConsole = "\n\t" + ConsoleColors.YELLOW + target.name + ConsoleColors.RESET + " скинув здібність " + name;
         String abilityMessageFile = "\n\t" + target.name + " скинув здібність " + name;
 
         fileLogger.log(abilityMessageConsole, abilityMessageFile);
@@ -74,10 +73,6 @@ public abstract class Ability {
         return active;
     }
 
-    public int getActiveTiming() {
-        return activeTiming;
-    }
-
     public int getReloadTiming() {
         return reloadTiming;
     }
@@ -98,7 +93,7 @@ class Healing extends Ability {
     public void useAbility(Droid target, FileLogger fileLogger) {
         target.health = Math.min(target.health + 20, target.maxHealth);
 
-        String abilityMessageConsole = "\n\tДроїд " + YELLOW + target.name + RESET + " відновив здоров'я до " + target.health;
+        String abilityMessageConsole = "\n\tДроїд " + ConsoleColors.YELLOW + target.name + ConsoleColors.RESET + " відновив здоров'я до " + target.health;
         String abilityMessageFile = "\n\tДроїд " + target.name + " відновив здоров'я до " + target.health;
 
         fileLogger.log(abilityMessageConsole, abilityMessageFile);
@@ -121,7 +116,7 @@ class Invincible extends Ability {
     public void useAbility(Droid target, FileLogger fileLogger) {
         originalHitChance = target.hitChance;
         target.hitChance = 0;
-        String abilityMessageConsole = "\n\tДроїд " + YELLOW + target.name + RESET + " став невразливим";
+        String abilityMessageConsole = "\n\tДроїд " + ConsoleColors.YELLOW + target.name + ConsoleColors.RESET + " став невразливим";
         String abilityMessageFile = "\n\tДроїд " + target.name + " став невразливим";
 
         fileLogger.log(abilityMessageConsole, abilityMessageFile);
@@ -135,7 +130,7 @@ class Invincible extends Ability {
 }
 
 class EnhancedDamage extends Ability {
-    private int damageBonus = 10;
+    private final int damageBonus = 10;
 
     public EnhancedDamage() {
         super("Збільшена шкода", 2, 1); // Ability lasts for 1 turn and has 2 turns cooldown
@@ -145,7 +140,7 @@ class EnhancedDamage extends Ability {
     public void useAbility(Droid target, FileLogger fileLogger) {
         target.minDamage += damageBonus;
         target.maxDamage += damageBonus;
-        String abilityMessageConsole = "\n\tДроїд " + YELLOW + target.name + RESET + " збільшує шкоду на " + damageBonus + " очок";
+        String abilityMessageConsole = "\n\tДроїд " + ConsoleColors.YELLOW + target.name + ConsoleColors.RESET + " збільшує шкоду на " + damageBonus + " очок";
         String abilityMessageFile = "\n\tДроїд " + target.name + " збільшує шкоду на " + damageBonus + " очок";
 
         fileLogger.log(abilityMessageConsole, abilityMessageFile);
@@ -167,7 +162,7 @@ class EnhancedArmor extends Ability {
     @Override
     public void useAbility(Droid target, FileLogger fileLogger) {
 
-        String abilityMessageConsole = "\n\tДроїд " + YELLOW + target.name + RESET + " отримав збільшену броню, зменшуючи кількість очок шкоди ";
+        String abilityMessageConsole = "\n\tДроїд " + ConsoleColors.YELLOW + target.name + ConsoleColors.RESET + " отримав збільшену броню, зменшуючи кількість очок шкоди ";
         String abilityMessageFile = "\n\tДроїд " + target.name + " отримав збільшену броню, зменшуючи кількість очок шкоди ";
 
         fileLogger.log(abilityMessageConsole, abilityMessageFile);
@@ -180,7 +175,6 @@ class EnhancedArmor extends Ability {
 }
 
 class Spikes extends Ability {
-    private int spikeDamage = 5;
 
     public Spikes() {
         super("Шипи", 2, Integer.MAX_VALUE); // Spikes are passive and last indefinitely
@@ -189,7 +183,7 @@ class Spikes extends Ability {
     @Override
     public void useAbility(Droid target, FileLogger fileLogger) {
 
-        String abilityMessageConsole = "\n\tДроїд " + YELLOW + target.name + RESET + " активував шипи. Атакуючі дроїди отримають шкоду.";
+        String abilityMessageConsole = "\n\tДроїд " + ConsoleColors.YELLOW + target.name + ConsoleColors.RESET + " активував шипи. Атакуючі дроїди отримають шкоду.";
         String abilityMessageFile = "\n\tДроїд " + target.name + " активував шипи. Атакуючі дроїди отримають шкоду.";
 
         fileLogger.log(abilityMessageConsole, abilityMessageFile);
@@ -197,7 +191,8 @@ class Spikes extends Ability {
 
     public void onHit(Droid attacker, FileLogger fileLogger) {
 
-        String abilityMessageConsole = "\t" + YELLOW + attacker.name + RESET + " отримав шкоду від шипів: " + spikeDamage;
+        int spikeDamage = 5;
+        String abilityMessageConsole = "\t" + ConsoleColors.YELLOW + attacker.name + ConsoleColors.RESET + " отримав шкоду від шипів: " + spikeDamage;
         String abilityMessageFile = "\t" + attacker.name + " отримав шкоду від шипів: " + spikeDamage;
 
         fileLogger.log(abilityMessageConsole, abilityMessageFile);

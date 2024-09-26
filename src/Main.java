@@ -5,14 +5,6 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 
 public class Main {
-    public static final String RESET = "\u001B[0m";  // Скидання кольору
-    public static final String RED = "\u001B[31m";
-    public static final String GREEN = "\u001B[32m";
-    public static final String YELLOW = "\u001B[33m";
-    public static final String BLUE = "\u001B[34m";
-    public static final String PURPLE = "\u001B[35m";
-    public static final String CYAN = "\u001B[36m";
-    public static final String BLACK = "\u001B[30m";
 
     static ArrayList<Droid> listDroid = new ArrayList<>();
 
@@ -23,17 +15,16 @@ public class Main {
 
         do {
             clearConsole();
-            System.out.println(YELLOW + "\t****************** Меню команд *********************" + RESET);
+            System.out.println(ConsoleColors.YELLOW + "\t****************** Меню команд *********************" + ConsoleColors.RESET);
             System.out.println("\t1 - Створити дроїда");
             System.out.println("\t2 - Показати список створених дроїдів");
             System.out.println("\t3 - Запустити бій 1 на 1");
             System.out.println("\t4 - Запустити бій команда на команду");
             System.out.println("\t5 - Відтворити проведений бій зі збереженого файлу");
             System.out.println("\t6 - Вийти");
-            System.out.println(YELLOW + "\t****************************************************" + RESET);
+            System.out.println(ConsoleColors.YELLOW + "\t****************************************************" + ConsoleColors.RESET);
 
-            System.out.print("\n\tВиберіть команду: ");
-            choice = scanner.nextInt();
+            choice = getValidatedInput(1, 6);
 
             switch (choice) {
                 case 1 -> createDroid();
@@ -45,7 +36,6 @@ public class Main {
                 default -> System.out.println("\tНеправильний вибір. Спробуйте ще раз.");
             }
             System.out.print("\n\tНатисніть Enter, щоб продовжити...");
-            scanner.nextLine();
             scanner.nextLine();
         } while (isRunning);
 
@@ -59,24 +49,30 @@ public class Main {
         System.out.print("\n\tВведіть ім'я дроїда: ");
         String name = scanner.nextLine();
 
-        System.out.println(GREEN + "\n\t*********************************** Меню роботів *************************************" + RESET);
+        System.out.println(ConsoleColors.GREEN + "\n\t*********************************** Меню роботів *************************************" + ConsoleColors.RESET);
         System.out.println("\t1 - Легкий        (HP: 50   |   Сила удару: 5-10    |   Шанс отримання шкоди: 50%)");
         System.out.println("\t2 - Звичайний     (HP: 75   |   Сила удару: 13-18   |   Шанс отримання шкоди: 70%)");
         System.out.println("\t3 - Броньований   (HP: 100  |   Сила удару: 20-25   |   Шанс отримання шкоди: 90%)");
-        System.out.println(GREEN + "\t**************************************************************************************" + RESET);
+        System.out.println(ConsoleColors.GREEN + "\t**************************************************************************************" + ConsoleColors.RESET);
 
         int choiceDroid = getValidatedInput(1, 3);
 
-        System.out.println(PURPLE + "\n\t********************************* Меню здібностей ************************************" + RESET);
+        System.out.println(ConsoleColors.PURPLE + "\n\t********************************* Меню здібностей ************************************" + ConsoleColors.RESET);
         System.out.println("\t1 - Регенерація (відновлює здоров'я на 20 очок)");
         System.out.println("\t2 - Недосяжність (недосяжний для атак ворожих дроїдів)");
         System.out.println("\t3 - Збільшена шкода (збільшує наносиму шкоду ворогу на 10 очок)");
         System.out.println("\t4 - Збільшена броня (зменшує атаку ворога вдвічі)");
         System.out.println("\t5 - Шипи (при попаданні ворожого дроїда наносить удар у відповідь на 5 очок)");
-        System.out.println(PURPLE + "\t**************************************************************************************" + RESET);
+        System.out.println(ConsoleColors.PURPLE + "\t**************************************************************************************" + ConsoleColors.RESET);
 
         int choiceAbility = getValidatedInput(1, 5);
 
+        Droid droid = getDroid(choiceAbility, choiceDroid, name);
+
+        listDroid.add(droid);
+    }
+
+    private static Droid getDroid(int choiceAbility, int choiceDroid, String name) {
         Ability ability = switch (choiceAbility) {
             case 1 -> new Healing();
             case 2 -> new Invincible();
@@ -86,14 +82,12 @@ public class Main {
             default -> null;
         };
 
-        Droid droid = switch (choiceDroid) {
+        return switch (choiceDroid) {
             case 1 -> new LightDroid(name, ability);
             case 2 -> new DefaultDroid(name, ability);
             case 3 -> new ArmoredDroid(name, ability);
             default -> null;
         };
-
-        listDroid.add(droid);
     }
 
     //-------------------------------------------Список дроїдів-------------------------------
@@ -200,11 +194,16 @@ public class Main {
         Scanner scanner = new Scanner(System.in);
         FileLogger fileLogger;
 
-        // Запитуємо у користувача назву файлу
-        System.out.print("\n\tВведіть назву файлу для збереження логів: ");
-        String fileName = scanner.nextLine(); // Зчитуємо назву файлу
+        String fileName = "";
 
-        fileName = "D:\\2_kurs-1_sem\\PP\\LW-3\\Program\\Battles\\" + fileName;
+        // Запитуємо у користувача назву файлу
+        if (saveInFile) {
+            System.out.print("\n\tВведіть назву файлу для збереження логів: ");
+            fileName = scanner.nextLine(); // Зчитуємо назву файлу
+
+            fileName = "D:\\2_kurs-1_sem\\PP\\LW-3\\Program\\Battles\\" + fileName;
+
+        }
 
         // Створюємо FileLogger для ведення логів
         try {
@@ -218,7 +217,7 @@ public class Main {
         boolean activeDroid = true;
 
         while (droidA.health > 0 && droidB.health > 0) {
-            String fightStateConsole = "\t" + BLUE + droidA.inSingleFightInfo() + RESET + "                  " + RED + droidB.inSingleFightInfo() + RESET;
+            String fightStateConsole = "\t" + ConsoleColors.BLUE + droidA.inSingleFightInfo() + ConsoleColors.RESET + "                  " + ConsoleColors.RED + droidB.inSingleFightInfo() + ConsoleColors.RESET;
             String fightStateFile = "\t" + droidA.inSingleFightInfo() + "                  " + droidB.inSingleFightInfo();
 
             // Логуємо стан бою (в консоль або в файл + консоль)
@@ -233,7 +232,7 @@ public class Main {
             scanner.nextLine(); // Чекаємо на натискання Enter
         }
 
-        String winnerMessageConsole = "\tПереможець: " + YELLOW + ((droidA.health > 0) ? droidA.name : droidB.name) + RESET;
+        String winnerMessageConsole = "\tПереможець: " + ConsoleColors.YELLOW + ((droidA.health > 0) ? droidA.name : droidB.name) + ConsoleColors.RESET;
         String winnerMessageFile = "\tПереможець: " + ((droidA.health > 0) ? droidA.name : droidB.name);
 
         fileLogger.log(winnerMessageConsole, winnerMessageFile);
@@ -276,15 +275,15 @@ public class Main {
                 String fightStateFile = droidStateTeamA + "                  " + droidStateTeamB + "\n";
 
                 if (droidTeamA.isAlive()) {
-                    droidStateTeamA = "\t" + BLUE + droidStateTeamA + RESET;
+                    droidStateTeamA = "\t" + ConsoleColors.BLUE + droidStateTeamA + ConsoleColors.RESET;
                 } else {
-                    droidStateTeamA = "\t" + BLACK + droidStateTeamA + RESET;
+                    droidStateTeamA = "\t" + ConsoleColors.BLACK + droidStateTeamA + ConsoleColors.RESET;
                 }
 
                 if (droidTeamB.isAlive()) {
-                    droidStateTeamB = "\t" + RED + allTeamB.get(i).inTeamFightInfo() + RESET;
+                    droidStateTeamB = "\t" + ConsoleColors.RED + allTeamB.get(i).inTeamFightInfo() + ConsoleColors.RESET;
                 } else {
-                    droidStateTeamB = "\t" + BLACK + allTeamB.get(i).inTeamFightInfo() + RESET;
+                    droidStateTeamB = "\t" + ConsoleColors.BLACK + allTeamB.get(i).inTeamFightInfo() + ConsoleColors.RESET;
                 }
 
                 String fightStateConsole = droidStateTeamA + "                  " + droidStateTeamB + "\n";
@@ -295,12 +294,12 @@ public class Main {
             Droid attacker, target;
 
             if (activeTeam) {
-                fileLogger.log("\n\tКоманда " + YELLOW + "A" + RESET + " атакує.", "\n\tКоманда A атакує.");
+                fileLogger.log("\n\tКоманда " + ConsoleColors.YELLOW + "A" + ConsoleColors.RESET + " атакує.", "\n\tКоманда A атакує.");
                 attacker = selectDroidForAttack(teamA, "Оберіть дроїда з команди A, який буде атакувати:");
                 target = selectDroidForAttack(teamB, "Оберіть дроїда з команди B, якого будуть атакувати:");
 
             } else {
-                fileLogger.log("\n\tКоманда " + YELLOW + "B" + RESET + " атакує.", "\n\tКоманда B атакує.");
+                fileLogger.log("\n\tКоманда " + ConsoleColors.YELLOW + "B" + ConsoleColors.RESET + " атакує.", "\n\tКоманда B атакує.");
                 attacker = selectDroidForAttack(teamB, "Оберіть дроїда з команди B, який буде атакувати:");
                 target = selectDroidForAttack(teamA, "Оберіть дроїда з команди A, якого будуть атакувати:");
             }
@@ -308,7 +307,7 @@ public class Main {
             if (attacker.isAbilityReady()) {
                 attacker.useAbility(target, fileLogger);
             } else {
-                System.out.println("\n\tЗдібність " + PURPLE + attacker.ability.name + RESET + " не готова до використання для дроїда " + YELLOW + attacker.name + RESET + ".");
+                System.out.println("\n\tЗдібність " + ConsoleColors.PURPLE + attacker.ability.name + ConsoleColors.RESET + " не готова до використання для дроїда " + ConsoleColors.YELLOW + attacker.name + ConsoleColors.RESET + ".");
                 attacker.abilityUpdateCooldown();
             }
 
@@ -324,7 +323,7 @@ public class Main {
             activeTeam = !activeTeam;
         }
 
-        String winnerMessageConsole = "\n\tПереможна команда: Команда " + CYAN + ((!teamA.isEmpty()) ? "A" : "B") + RESET;
+        String winnerMessageConsole = "\n\tПереможна команда: Команда " + ConsoleColors.CYAN + ((!teamA.isEmpty()) ? "A" : "B") + ConsoleColors.RESET;
         String winnerMessageFile = "\n\tПереможна команда: Команда " + ((!teamA.isEmpty()) ? "A" : "B");
 
         fileLogger.log(winnerMessageConsole, winnerMessageFile);
@@ -368,7 +367,7 @@ public class Main {
         } else if (attacker.isAbilityReady()) {
             attacker.useAbility(attacker, fileLogger);
         } else {
-            System.out.println("\n\tЗдібність " + PURPLE + attacker.ability.name + RESET + " не готова до використання для дроїда " + YELLOW + attacker.name + RESET + ".");
+            System.out.println("\n\tЗдібність " + ConsoleColors.PURPLE + attacker.ability.name + ConsoleColors.RESET + " не готова до використання для дроїда " + ConsoleColors.YELLOW + attacker.name + ConsoleColors.RESET + ".");
             attacker.abilityUpdateCooldown();
         }
 
@@ -418,7 +417,7 @@ public class Main {
             while (!scanner.hasNextInt()) {
                 System.out.println("\tНевірний ввід! Введіть число.");
                 scanner.next(); // Clear invalid input
-                System.out.print("\tВаш вибір: ");
+                System.out.print("\n\tВаш вибір: ");
             }
             input = scanner.nextInt();
         } while (input < min || input > max);
