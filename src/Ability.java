@@ -18,6 +18,13 @@ public abstract class Ability {
 
     //-----------------------------Робота зі здібністю---------------------------------
 
+    // Ввімкнення здібності
+    public void set(FileLogger fileLogger, Droid target) {
+        reloadCount = 0;
+        activeCount = activeTiming;
+        active = true;
+    }
+
     // Вимкнення здібності
     public void reset(FileLogger fileLogger, Droid target) {
         active = false;
@@ -26,13 +33,6 @@ public abstract class Ability {
         String abilityMessageFile = "\n\t" + target.name + " скинув здібність " + name;
 
         fileLogger.log(abilityMessageConsole, abilityMessageFile);
-    }
-
-    // Ввімкнення здібності
-    public void set(FileLogger fileLogger, Droid target) {
-        reloadCount = 0;
-        activeCount = activeTiming;
-        active = true;
     }
 
     // Зарядка здібності
@@ -88,8 +88,8 @@ class Healing extends Ability {
 
     public void set(FileLogger fileLogger, Droid target) {
         super.set(fileLogger, target);
-        target.health = Math.min(target.health + 20, target.maxHealth);
 
+        target.health = Math.min(target.health + 20, target.maxHealth);
         String abilityMessageConsole = "\n\tДроїд " + ConsoleColors.YELLOW + target.name + ConsoleColors.RESET + " відновив здоров'я до " + target.health;
         String abilityMessageFile = "\n\tДроїд " + target.name + " відновив здоров'я до " + target.health;
 
@@ -111,6 +111,7 @@ class Invincible extends Ability {
 
     public void set(FileLogger fileLogger, Droid target) {
         super.set(fileLogger, target);
+
         originalHitChance = target.hitChance;
         target.hitChance = 0;
         String abilityMessageConsole = "\n\tДроїд " + ConsoleColors.YELLOW + target.name + ConsoleColors.RESET + " став невразливим";
@@ -135,6 +136,7 @@ class EnhancedDamage extends Ability {
 
     public void set(FileLogger fileLogger, Droid target) {
         super.set(fileLogger, target);
+
         target.minDamage += damageBonus;
         target.maxDamage += damageBonus;
         String abilityMessageConsole = "\n\tДроїд " + ConsoleColors.YELLOW + target.name + ConsoleColors.RESET + " збільшує шкоду на " + damageBonus + " очок";
