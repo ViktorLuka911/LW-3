@@ -112,13 +112,10 @@ public class Main {
 
         ArrayList<Droid> availableDroids = new ArrayList<>(listDroid);
 
-        // Select the first droid
         Droid droid1 = selectDroid(availableDroids, "першого");
 
-        // Remove the first droid from available options
         availableDroids.remove(droid1);
 
-        // Select the second droid
         Droid droid2 = selectDroid(availableDroids, "другого");
 
         System.out.println("\n\t" + droid1.getName() + " VS " + droid2.getName());

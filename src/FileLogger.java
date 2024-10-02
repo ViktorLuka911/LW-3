@@ -11,7 +11,7 @@ public class FileLogger {
 
         // Якщо потрібно зберігати у файл, відкриваємо файл для запису
         if (saveInFile) {
-            writer = new PrintWriter(new FileWriter(filename, true)); // true для додавання в кінець файлу
+            writer = new PrintWriter(new FileWriter(filename, true)); // true для додавання тексту в кінець файлу
         }
     }
 
