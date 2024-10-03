@@ -30,8 +30,8 @@ public abstract class Fight {
             target.takeDamage(damage);
 
             if (target.getHealth() == 0) {
-                LoggerPrint.log("\n\tДроїда " + Logger.YELLOW + target.getName() + Logger.RESET + " знищено.\n",
-                                     "\n\tДроїда " + target.getName() + " знищено.\n");
+                LoggerPrint.log("\n\tДроїда " + Logger.YELLOW + target.getName() + Logger.RESET + " знищено.\n\n",
+                                     "\n\tДроїда " + target.getName() + " знищено.\n\n");
             }
 
             // Якщо активована здатність "Шипи" у цілі
