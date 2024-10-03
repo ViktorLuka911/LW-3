@@ -1,4 +1,7 @@
-public class ConsoleColors {
+package Loggers;
+
+public abstract class Logger {
+
     public static final String RESET = "\u001B[0m";
     public static final String BLACK = "\u001B[30m";
     public static final String RED = "\u001B[31m";
@@ -7,4 +10,6 @@ public class ConsoleColors {
     public static final String BLUE = "\u001B[34m";
     public static final String PURPLE = "\u001B[35m";
     public static final String CYAN = "\u001B[36m";
+
+    public static void log(String message) {}
 }
